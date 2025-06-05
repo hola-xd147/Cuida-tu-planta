@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuida tu planta</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(#e0f7fa, #ffffff);
+      transition: background 1s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      color: #63d697;
+    }
+    #plant {
+      width: 150px;
+      height: 150px;
+      margin: 20px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      transition: transform 0.3s ease;
+    }
+    #healthBar {
+      width: 80%;
+      height: 20px;
+      background-color: #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    #healthFill {
+      height: 100%;
+      width: 50%;
+      background-color: #4a924e;
+      transition: width 0.3s ease;
+    }
+    .btns button {
+      background-color: #165827;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .btns button:hover {
+      background-color: #288640;
+    }
+    #message {
+      font-size: 18px;
+      margin-top: 15px;
+      color: #bfdfc1;
+      text-align: center;
+      padding: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌿 Cuida tu planta</h1>
+  <div id="plant"></div>
+  <div id="healthBar">
+    <div id="healthFill"></div>
+  </div>
+  <div class="btns">
+    <button onclick="care('water')">💧 Regar</button>
+    <button onclick="care('sun')">☀️ Sol</button>
+    <button onclick="care('talk')">💬 Hablar</button>
+    <button onclick="giveReward()">🎁 Regalo</button>
+  </div>
+  <div id="message"></div>
+
+  <script>
+    let health = parseInt(localStorage.getItem('plantHealth')) || 50;
+    const healthFill = document.getElementById('healthFill');
+    const plant = document.getElementById('plant');
+    const message = document.getElementById('message');
+
+    const frases = [
+      "🌟 Estoy feliz de verte cuidar de mí.",
+      "💚 Tu amor me hace crecer.",
+      "🌈 Cuidarme también es cuidarte.",
+      "🧘 Respira profundo, lo estás haciendo bien.",
+      "✨ Gracias por esta luz tan bonita.",
+      "🌱 Cada acción tuya me ayuda a florecer."
+    ];
+
+    const imagenes = {
+    dead: "fotos/muerta.jpg",
+      growing: "fotos/marchita.jpg",
+      big: "fotos/retoño.jpg",
+      flower: "fotos/cresida.jpg"
+    };
+
+    function updateHealth(amount) {
+      health = Math.min(100, Math.max(0, health + amount));
+      localStorage.setItem('plantHealth', health);
+      healthFill.style.width = health + '%';
+      updatePlantImage();
+
+      if (amount !== 5) {
+        if (health === 100) {
+          message.textContent = '🌸 ¡Tu planta está floreciendo!';
+        } else if (health >= 70) {
+          message.textContent = '💚 Tu planta está muy saludable.';
+        } else if (health >= 30) {
+          message.textContent = '⚠️ Tu planta está creciendo.';
+        } else {
+          message.textContent = '🚫 Tu planta se está marchitando...';
+        }
+      }
+    }
+
+    function updatePlantImage() {
+      if (health === 100) {
+        plant.style.backgroundImage = `url('${imagenes.flower}')`;
+      } else if (health >= 70) {
+        plant.style.backgroundImage = `url('${imagenes.big}')`;
+      } else if (health >= 30) {
+        plant.style.backgroundImage = `url('${imagenes.growing}')`;
+      } else {
+        plant.style.backgroundImage = `url('${imagenes.dead}')`;
+      }
+    }
+
+    function care(type) {
+      let boost = 0;
+      if (type === 'water') boost = 10;
+      if (type === 'sun') boost = 7;
+      if (type === 'talk') {
+        boost = 5;
+        const frase = frases[Math.floor(Math.random() * frases.length)];
+        message.textContent = frase;
+      }
+      updateHealth(boost);
+      plant.style.transform = 'scale(1.05)';
+      setTimeout(() => plant.style.transform = 'scale(1)', 200);
+    }
+
+    function giveReward() {
+      const bonus = Math.floor(Math.random() * 11) + 5; // 5-15 extra
+      updateHealth(bonus);
+      message.textContent = `🎁 ¡Recibiste ${bonus} puntos de salud por cuidar bien tu planta!`;
+    }
+
+    function updateBackground() {
+      const hour = new Date().getHours();
+      if (hour >= 6 && hour < 18) {
+        document.body.style.background = 'linear-gradient(#e0f7fa, #ffffff)';
+      } else {
+        document.body.style.background = 'linear-gradient(#263238, #455a64)';
+      }
+    }
+
+    setInterval(() => {
+      updateHealth(-3);
+    }, 5000);
+
+    updateBackground();
+    updateHealth(0);
+  </script>
+</body>
+</html>
